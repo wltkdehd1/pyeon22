@@ -29,7 +29,7 @@
 			<input type="hidden" name="area" value="${area }">
 			바코드 입력 학시오 : <input type="text" name="billnum" id="billnum" onkeypress="if(event.keyCode==13) {input(1);}">
 			<br>
-			<input type="submit" value="입력">
+			<input type="button" value="입력" onclick='input(1)'>
 		</center>
 	</form>
 </body>

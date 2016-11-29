@@ -117,7 +117,7 @@
 							<th class="th1">상품 코드</th>
 							<td class="td1"><input class="inpt" type="text"
 								name="item_code" id="item_code"
-								onkeypress="if(event.keyCode==13) {input(1);}" class="invisible">
+								onkeypress="if(event.keyCode==13) {input(1);}">
 							</td>
 							<input type="hidden" name="area" value="${ area }">
 							<td><input class="submit2" type="button" value="입력"
