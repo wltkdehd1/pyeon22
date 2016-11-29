@@ -358,4 +358,21 @@ public class PosDAOImpl implements PosDAO {
 	public void updateManager(MemberVO Mvo) throws Exception {
 		session.update(namespace+".updateManager", Mvo);
 	}
+
+	
+	//////////////////////////////////
+	@Override
+	public String code1() throws Exception {
+		return session.selectOne(namespace+".code1");
+	}
+
+	@Override
+	public int code2() throws Exception {
+		return session.selectOne(namespace+".code2");
+	}
+
+	@Override
+	public int num(ItemVO vo) throws Exception {
+		return session.selectOne(namespace+".num",vo);
+	}
 }

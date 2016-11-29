@@ -35,6 +35,11 @@ public class ItemVO {
 	private String month;
 	private String days;
 	private int num;
+	
+	//////////////////////////////////////
+	private String code1;
+	private int code2;
+	private String billnum;
 
 	public String getYear() {
 		return year;
@@ -211,4 +216,27 @@ public class ItemVO {
 	public void setNum(int num) {
 		this.num = num;
 	}
+	
+	
+	
+	//////////////////////////////////////////
+	public String getCode1() {
+		return code1;
+	}
+	public void setCode1(String code1) {
+		this.code1 = code1;
+	}
+	public int getCode2() {
+		return code2;
+	}
+	public void setCode2(int code2) {
+		this.code2 = code2;
+	}
+	public String getBillnum() {
+		return billnum;
+	}
+	public void setBillnum(String billnum) {
+		this.billnum = billnum;
+	}
+	
 }

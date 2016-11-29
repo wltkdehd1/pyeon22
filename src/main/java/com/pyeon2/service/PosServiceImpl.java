@@ -357,4 +357,21 @@ public class PosServiceImpl implements PosService {
 	public void updateManager(MemberVO Mvo) throws Exception {
 		posDao.updateManager(Mvo);
 	}
+
+///////////////////////////////////////////
+
+	@Override
+	public String code1() throws Exception {
+		return posDao.code1();
+	}
+
+	@Override
+	public int code2() throws Exception {
+		return posDao.code2();
+	}
+
+	@Override
+	public int num(ItemVO vo) throws Exception {
+		return posDao.num(vo);
+	}
 }

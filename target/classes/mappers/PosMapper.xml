@@ -211,12 +211,12 @@
 	
 	<!-- 계산된 총액과 시간 저장 -->
 	<insert id="salinsert" parameterType="com.pyeon2.vo.ItemVO">
-		insert into sal(sold,pay,paynum,sal_time,area) values('판매',#{total},paynum.nextVal,(SELECT TO_CHAR(sysdate, 'YYYY-MM-dd HH24:mi' ) as sysdates FROM dual ),#{area})
+		insert into sal(sold,pay,paynum,sal_time,area,code1,code2,billnum) values('판매',#{total},paynum.nextVal,(SELECT TO_CHAR(sysdate, 'YYYY-MM-dd HH24:mi' ) as sysdates FROM dual ),#{area},#{code1},#{code2},#{billnum})
 	</insert>
 	
 	<!-- 정산하는 부분에 리스트 저장 -->
 	<insert id="daycalcinser" parameterType="com.pyeon2.vo.ItemVO">
-		insert into p2_dayCalc(item_code,item_name,price,count,category,area,num,p2_time) values (#{item_code},#{item_name},#{price},#{count},#{category},#{area},(select max(paynum) from sal),(select sal_time from sal where paynum = (select max(paynum) from sal)))
+		insert into p2_dayCalc(item_code,item_name,price,count,category,area,num,p2_time,code1,code2,billnum) values (#{item_code},#{item_name},#{price},#{count},#{category},#{area},(select max(paynum) from sal),(select sal_time from sal where paynum = (select max(paynum) from sal)),#{code1},#{code2},#{billnum})
 	</insert>
 	
 	<!-- 계산 목록 계산시 삭제 -->
@@ -367,7 +367,7 @@
 	
 	<!-- sal , orderspend 리스트 p2_daymoney 에 insert -->
 	<insert id="daymoneyinsert" parameterType="com.pyeon2.vo.ItemVO">
-		insert into p2_daymoney(bno, num,title,content,pay,year,month,days,dayda,area) values(p2_daymoney_num.nextVal, #{paynum},#{title},#{content},#{pay},(SELECT TO_CHAR(sysdate, 'YYYY' )FROM dual ),(SELECT TO_CHAR(sysdate, 'MM' ) FROM dual ),(SELECT TO_CHAR(sysdate, 'dd' ) FROM dual ),sysdate,#{area})
+		insert into p2_daymoney(bno, num,title,content,pay,year,month,days,dayda,area,billnum) values(p2_daymoney_num.nextVal, #{paynum},#{title},#{content},#{pay},(SELECT TO_CHAR(sysdate, 'YYYY' )FROM dual ),(SELECT TO_CHAR(sysdate, 'MM' ) FROM dual ),(SELECT TO_CHAR(sysdate, 'dd' ) FROM dual ),sysdate,#{area},#{billnum})
 		<!-- <choose>
 			<when test="#{content == '수입'}">
 				insert into p2_daymoney(num,title,content,pay,year,month,days,dayda,area) values(#{paynum},#{title},#{content},#{pay}, 
@@ -463,7 +463,7 @@
 	
 	<!-- daycalc 리스트 가져오기 -->
 	<select id="daycalclist" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
-		select item_code , item_name , count , price from p2_daycalc where area = #{area} and num = #{paynum}
+		select item_code , item_name , count , price from p2_daycalc where area = #{area} and billnum = #{billnum}
 	</select>
 	
 	<!-- 환불목록 삭제 -->
@@ -498,5 +498,25 @@
 		postcode = #{postcode}, address = #{address}, address2 = #{address2}
 		where id = #{id}
 	</update>
+	
+	
+	
+	
+	<!--  -->
+	
+	<!-- code1 가져오기 -->
+	<select id="code1" resultType="String">
+		select code1 from p2_dayCalc group by code1
+	</select>
+	
+	<!-- code2 가져오기 -->
+	<select id="code2" resultType="Integer">
+		select max(code2) from p2_dayCalc
+	</select>
+	
+	<!-- num 가져오기 -->
+	<select id="num" resultType="Integer" parameterType="com.pyeon2.vo.ItemVO">
+		select num from p2_dayCalc where billnum = #{billnum} group by num
+	</select>
 	
 </mapper>

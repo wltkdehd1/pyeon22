@@ -5,12 +5,29 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Insert title here</title>
+
+<script type="text/javascript">
+	window.onload = function() {
+		billnum.focus();
+	}
+</script>
+
+<script type="text/javascript">
+	function input(index) {
+		if (index == 1) {
+			document.daily.action = "pop_calcrefurndlist";
+		}
+
+		document.daily.submit();
+	}
+</script>
 </head>
 <body >
-	<form action="pop_calcrefurndlist" method="POST">
+	<!-- <form action="pop_calcrefurndlist" method="POST"> -->
+	<form method="post" name=daily id=daily>
 		<center>
 			<input type="hidden" name="area" value="${area }">
-			바코드 입력 학시오 : <input type="text" name="num">
+			바코드 입력 학시오 : <input type="text" name="billnum" id="billnum" onkeypress="if(event.keyCode==13) {input(1);}">
 			<br>
 			<input type="submit" value="입력">
 		</center>

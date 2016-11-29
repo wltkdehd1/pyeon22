@@ -799,15 +799,25 @@ public class PosController {
 		
 		ModelAndView mav = new ModelAndView();
 		
-		// 바코드 생성 코드
-		String str = "1234567890";
-		Barcode barcode = BarcodeFactory.createCode128B(str);
-
-		File file = new File("C:\\Bill\\" + str + ".jpg");
-		BarcodeImageHandler.saveJPEG(barcode, file);
-		
 		vo.setTotal(Integer.parseInt(request.getParameter("total")));
 		vo.setArea(request.getParameter("area"));
+		
+		///////////////////////////////////////////////////////////
+		String code1 = posService.code1();
+		int code2 = posService.code2() + 1;
+		String billnum = code1 + code2;
+		
+		vo.setCode1(code1);
+		vo.setCode2(code2);
+		vo.setBillnum(billnum);
+
+		// 바코드 생성 코드
+		Barcode barcode = BarcodeFactory.createCode128B(billnum);
+
+		File file = new File("C:\\Bill\\" + billnum + ".jpg");
+		BarcodeImageHandler.saveJPEG(barcode, file);
+		///////////////////////////////////////////////////////////
+		
 		
 		posService.salinsert(vo);
 		
@@ -1005,6 +1015,7 @@ public class PosController {
 			vo.setContent("수입");
 			vo.setPay(list1.get(i).getPay());
 			vo.setP2_time(list1.get(i).getSal_time());
+			vo.setBillnum(list1.get(i).getBillnum());              /////////////////////////
 			System.out.println("p2_time : " + list1.get(i).getSal_time());
 			posService.daymoneyinsert(vo);
 		}
@@ -1139,12 +1150,16 @@ public class PosController {
 		ModelAndView mav = new ModelAndView();
 		
 		ItemVO vo = new ItemVO();
-		vo.setPaynum(Integer.parseInt(request.getParameter("num")));
+		vo.setBillnum(request.getParameter("billnum"));
 		
 		vo.setArea(request.getParameter("area"));
 		List<ItemVO> list = posService.daycalclist(vo);
 		
-		mav.addObject("num",Integer.parseInt(request.getParameter("num")));
+		int num =  posService.num(vo);
+		
+		System.out.println("num = " + num);
+		mav.addObject("billnum",vo.getBillnum());
+		mav.addObject("num",num);
 		mav.addObject("area",request.getParameter("area"));
 		mav.addObject("result" , list);
 		mav.setViewName("pop/pop_calcrefurndlist");
@@ -1157,6 +1172,7 @@ public class PosController {
 		
 		ItemVO vo = new ItemVO();
 		
+		vo.setBillnum(request.getParameter("billnum"));
 		vo.setPaynum(Integer.parseInt(request.getParameter("num")));
 		vo.setArea(request.getParameter("area"));
 		
