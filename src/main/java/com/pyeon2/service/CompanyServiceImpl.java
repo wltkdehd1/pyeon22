@@ -1,9 +1,12 @@
 package com.pyeon2.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.pyeon2.dao.CompanyDAO;
 import com.pyeon2.domain.Criteria;
@@ -181,6 +184,33 @@ public class CompanyServiceImpl implements CompanyService {
 
 	@Override
 	public void newproduct(ComItemVO cvo) throws Exception {
+		MultipartFile uploadfile = cvo.getFile();
+        if (uploadfile != null) {
+            String fileName = uploadfile.getOriginalFilename();
+            try {
+                File file = new File("C:/springProject/workspace/Pyeon22/src/main/webapp/resources/item_image/" + fileName);
+               int count = 0;
+                while(file.exists()) {              
+                      int indexes = fileName.lastIndexOf(".");
+                      System.out.println("순서 = "+indexes);
+                      String extension = fileName.substring(indexes);
+                      System.out.println("확장자 = "+extension);
+                      String newFileName = fileName.substring(0, indexes) + count + extension;
+                      System.out.println("새 파일 이름 = "+newFileName);
+                      fileName = newFileName;
+                      file = new File("C:/springProject/workspace/Pyeon22/src/main/webapp/resources/item_image/" + newFileName);
+                      
+                      count++;
+                   }
+                cvo.setItem_image(fileName); 
+                  uploadfile.transferTo(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("vo " + cvo.getItem_image());
+		
+		
 		comDao.newproduct(cvo);
 	}
 

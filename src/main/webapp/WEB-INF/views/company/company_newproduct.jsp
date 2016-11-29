@@ -9,11 +9,15 @@
 </head>
 <body>
 	<sec:authentication property="name" var="LoingUser" />
-	<form action="com_companyStock2" method="POST">
+	<form action="com_companyStock2" method="POST" enctype="multipart/form-data">
 		<table>
 			<tr>
 				<td>상 품 명</td>
 				<td><input type="text" name="item_name"/></td>
+			</tr>
+			<tr>
+				<td>상품 이미지</td>
+				<td><input type="file" name="file" readonly="readonly"></td>
 			</tr>
 			<tr>
 				<td>원 가</td>

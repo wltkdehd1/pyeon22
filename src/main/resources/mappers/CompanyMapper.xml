@@ -313,7 +313,7 @@
 	<!-- 신제품 입력 -->
 	<insert id="newproduct" parameterType="com.pyeon2.vo.ComItemVO">
 		insert into company_item(bno, item_code,item_name,item_image,cost,price,count,category,code1,code2) values(company_item_num.nextVal,#{item_code},#{item_name},
-		'http://cdn2.bgfretail.com/bgfbrand/files/product/79A4191B8B694F5090EAB3CF00A91F7A.jpg',#{cost},#{price},#{count},#{category},#{code1},#{code2} )
+		#{item_image},#{cost},#{price},#{count},#{category},#{code1},#{code2} )
 	</insert>
 	
 	<!-- 지점 전체 area 가져오기 -->

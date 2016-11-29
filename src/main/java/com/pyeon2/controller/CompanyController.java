@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.pyeon2.domain.Criteria;
@@ -951,15 +952,15 @@ public class CompanyController {
 	public String comnewprodeuct() {
 		return ".company.company_newproduct";
 	}
-	
+	/*HttpServletRequest request, Model model*/
 	@RequestMapping(value = "company/com_companyStock2", method = RequestMethod.POST)
-	public ModelAndView comnewprodeuctin(HttpServletRequest request, Model model) throws Exception {
+	public ModelAndView comnewprodeuctin(ComItemVO cvo, MultipartHttpServletRequest request) throws Exception {
 		ModelAndView mav = new ModelAndView();
-		ComItemVO cvo = new ComItemVO();
+		/*ComItemVO cvo = new ComItemVO();*/
 		ItemVO vo = new ItemVO();
 		NoticeVO Nvo = new NoticeVO();
 		MemberVO Mvo = new MemberVO();
-		
+		/*
 		cvo.setItem_name(request.getParameter("item_name"));
 		cvo.setCost(Integer.parseInt(request.getParameter("cost")));
 		cvo.setPrice(Integer.parseInt(request.getParameter("price")));
@@ -967,7 +968,7 @@ public class CompanyController {
 		cvo.setCategory(request.getParameter("category"));
 		
 		System.out.println("categorydd"+cvo.getCategory());
-		
+		*/
 		String code1 = companyService.newproductcode1(cvo);
 		int code2 = companyService.newproductcode2(cvo)+1;
 		
@@ -983,7 +984,7 @@ public class CompanyController {
 		cvo.setCode2(code2);
 		cvo.setItem_code(result);
 		
-		companyService.newproduct(cvo);
+		companyService.newproduct(cvo);	///////
 		
 		vo.setItem_code(result);
 		List<ItemVO> list = companyService.newproductarea();

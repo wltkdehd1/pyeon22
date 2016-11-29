@@ -31,7 +31,7 @@
 			<tr>
 				<td>${product.item_code }</td>
 				<td>${product.item_name }</td>
-				<td><img width="30" height="60" src="${product.item_image }"></td>
+				<td><img width="30" height="60" src="/controller/resources/item_image/${product.item_image }"></td>
 				<td>${product.price }</td>
 				<td>${product.count }</td>
 				<td>${product.hit }</td>

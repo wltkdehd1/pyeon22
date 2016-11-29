@@ -38,7 +38,7 @@
 					<tbody>
 						<tr class="odd">
 							<td class="date2"><img width="30" height="50"
-								src="${list.item_image }"></td>
+								src="/controller/resources/item_image/${list.item_image }"></td>
 							<td class="date2">${list.category}</td>
 							<td class="date3">${list.item_code}</td>
 							<td class="date9">${list.item_name}</td>

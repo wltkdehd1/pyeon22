@@ -1,13 +1,22 @@
 package com.pyeon2.vo;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.pyeon2.domain.Criteria;
 
 public class ComItemVO {
 	private String item_code, item_name, item_image, category, code1;
 	private int cost, price, count, code2;
 	private Criteria cri;
+	private MultipartFile file;
 	
 	
+	public MultipartFile getFile() {
+		return file;
+	}
+	public void setFile(MultipartFile file) {
+		this.file = file;
+	}
 	public Criteria getCri() {
 		return cri;
 	}

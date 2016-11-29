@@ -80,7 +80,7 @@
 				<tbody>
 					<tr class="odd">
 						<td class="date1"><img width="50" height="50"
-							src="${list.item_image }"></td>
+							src="/controller/resources/item_image/${list.item_image }"></td>
 						<td class="date2">${list.category}</td>
 						<td class="date3">${list.item_code}</td>
 						<td class="date4">${list.item_name}</td>
