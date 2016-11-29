@@ -803,7 +803,7 @@ public class PosController {
 		String str = "1234567890";
 		Barcode barcode = BarcodeFactory.createCode128B(str);
 
-		File file = new File("C:\\app\\" + str + ".jpg");
+		File file = new File("C:\\Bill\\" + str + ".jpg");
 		BarcodeImageHandler.saveJPEG(barcode, file);
 		
 		vo.setTotal(Integer.parseInt(request.getParameter("total")));

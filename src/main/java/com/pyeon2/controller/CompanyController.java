@@ -1,5 +1,6 @@
 package com.pyeon2.controller;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,10 @@ import com.pyeon2.vo.ItemVO;
 import com.pyeon2.vo.MemberVO;
 import com.pyeon2.vo.NoticeVO;
 import com.pyeon2.vo.SelectSearch;
+
+import net.sourceforge.barbecue.Barcode;
+import net.sourceforge.barbecue.BarcodeFactory;
+import net.sourceforge.barbecue.BarcodeImageHandler;
 
 @Controller
 public class CompanyController {
@@ -967,6 +972,12 @@ public class CompanyController {
 		int code2 = companyService.newproductcode2(cvo)+1;
 		
 		String result = code1+code2;
+		
+		// 바코드 생성 코드
+		Barcode barcode = BarcodeFactory.createCode128B(result);
+
+		File file = new File("C:\\items\\" + result + ".jpg");
+		BarcodeImageHandler.saveJPEG(barcode, file);
 		
 		cvo.setCode1(code1);
 		cvo.setCode2(code2);
