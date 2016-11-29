@@ -10,6 +10,7 @@ import com.pyeon2.domain.Criteria;
 import com.pyeon2.vo.ComItemVO;
 import com.pyeon2.vo.ItemVO;
 import com.pyeon2.vo.MemberVO;
+import com.pyeon2.vo.NoticeReplVO;
 import com.pyeon2.vo.NoticeVO;
 import com.pyeon2.vo.SelectSearch;
 import com.pyeon2.vo.UserVO;
@@ -26,7 +27,7 @@ public class PosDAOImpl implements PosDAO {
 	public void insertOrderTemp(ItemVO vo) throws Exception {
 		session.insert(namespace + ".insertOrderTemp", vo);
 	}
-	
+
 	@Override
 	public void insertOrder(ItemVO vo) throws Exception {
 		session.update(namespace + ".insertOrder", vo);
@@ -126,10 +127,10 @@ public class PosDAOImpl implements PosDAO {
 	public List<ItemVO> calcList() throws Exception {
 		return session.selectList(namespace + ".calcList");
 	}
-	
+
 	@Override
 	public List<ItemVO> calcLists(ItemVO vo) throws Exception {
-		return session.selectList(namespace+".calcLists",vo);
+		return session.selectList(namespace + ".calcLists", vo);
 	}
 
 	@Override
@@ -144,7 +145,7 @@ public class PosDAOImpl implements PosDAO {
 
 	@Override
 	public int totalcalc(ItemVO vo) throws Exception {
-		return session.selectOne(namespace+".totalcalc",vo);
+		return session.selectOne(namespace + ".totalcalc", vo);
 	}
 
 	@Override
@@ -159,7 +160,7 @@ public class PosDAOImpl implements PosDAO {
 
 	@Override
 	public void calcdelete(ItemVO vo) throws Exception {
-		session.delete(namespace+".calcdelete",vo);
+		session.delete(namespace + ".calcdelete", vo);
 	}
 
 	@Override
@@ -200,7 +201,7 @@ public class PosDAOImpl implements PosDAO {
 
 	@Override
 	public int getSelectCount2(ItemVO vo) {
-		return session.selectOne(namespace + ".getSelectCount2" , vo);
+		return session.selectOne(namespace + ".getSelectCount2", vo);
 	}
 
 	@Override
@@ -247,7 +248,7 @@ public class PosDAOImpl implements PosDAO {
 	public void deleteOrder(ItemVO vo) throws Exception {
 		session.delete(namespace + ".deleteOrder", vo);
 	}
-	
+
 	public int getPrice(ItemVO vo) {
 		return session.selectOne(namespace + ".getPrice", vo);
 	}
@@ -261,59 +262,59 @@ public class PosDAOImpl implements PosDAO {
 	public void orderSpendTemp(ItemVO vo) {
 		session.insert(namespace + ".orderSpendTemp", vo);
 	}
-	
+
 	@Override
 	public List<ItemVO> sallist(ItemVO vo) throws Exception {
 		// TODO Auto-generated method stub
-		return session.selectList(namespace+".sallist",vo);
+		return session.selectList(namespace + ".sallist", vo);
 	}
 
 	@Override
 	public List<ItemVO> orderSpendlist(ItemVO vo) throws Exception {
 		// TODO Auto-generated method stub
-		return session.selectList(namespace+".orderSpendlist",vo);
+		return session.selectList(namespace + ".orderSpendlist", vo);
 	}
 
 	@Override
 	public void daymoneyinsert(ItemVO vo) throws Exception {
-		session.insert(namespace+".daymoneyinsert",vo);
+		session.insert(namespace + ".daymoneyinsert", vo);
 	}
 
 	@Override
 	public List<ItemVO> daymoneylist(ItemVO vo) throws Exception {
-		return session.selectList(namespace+".daymoneylist",vo);
+		return session.selectList(namespace + ".daymoneylist", vo);
 	}
 
 	@Override
 	public void daysaldelete(ItemVO vo) throws Exception {
-		session.delete(namespace+".daysaldelete",vo);
+		session.delete(namespace + ".daysaldelete", vo);
 	}
 
 	@Override
 	public void dayspenddelete(ItemVO vo) throws Exception {
-		session.delete(namespace+".dayspenddelete",vo);
+		session.delete(namespace + ".dayspenddelete", vo);
 	}
 
 	@Override
 	public List<ItemVO> daysaltotalpay(ItemVO vo) throws Exception {
-		return session.selectList(namespace+".daysaltotalpay",vo);
+		return session.selectList(namespace + ".daysaltotalpay", vo);
 	}
 
 	@Override
 	public List<ItemVO> daysalspendpay(ItemVO vo) throws Exception {
-		return session.selectList(namespace+".daysalspendpay",vo);
+		return session.selectList(namespace + ".daysalspendpay", vo);
 	}
 
 	@Override
 	public String daymoneyCount(ItemVO vo) throws Exception {
 		return session.selectOne(namespace + ".daymoneyCount", vo);
 	}
-	
+
 	@Override
 	public List<NoticeVO> getNoticeList() throws Exception {
 		return session.selectList(namespace + ".getNoticeList");
 	}
-	
+
 	@Override
 	public List<ItemVO> getLessItem(MemberVO Mvo) throws Exception {
 		return session.selectList(namespace + ".getLessItem", Mvo);
@@ -323,39 +324,59 @@ public class PosDAOImpl implements PosDAO {
 	public int getLessItemCount(MemberVO Mvo) throws Exception {
 		return session.selectOne(namespace + ".getLessItemCount", Mvo);
 	}
-	
+
 	@Override
 	public List<ItemVO> daycalclist(ItemVO vo) throws Exception {
-		return session.selectList(namespace+".daycalclist",vo);
+		return session.selectList(namespace + ".daycalclist", vo);
 	}
 
 	@Override
 	public void daycalclistdelete(ItemVO vo) throws Exception {
-		session.delete(namespace+".daycalclistdelete",vo);
+		session.delete(namespace + ".daycalclistdelete", vo);
 	}
 
 	@Override
 	public List<ItemVO> daymoneyselect() throws Exception {
-		return session.selectList(namespace+".daymoneyselect");
+		return session.selectList(namespace + ".daymoneyselect");
 	}
 
 	@Override
 	public void saldeletenum(ItemVO vo) throws Exception {
-		session.delete(namespace+".saldeletenum",vo);
+		session.delete(namespace + ".saldeletenum", vo);
 	}
 
 	@Override
 	public void daymoneydeletenum(ItemVO vo) throws Exception {
-		session.delete(namespace+".daymoneydeletenum",vo);
+		session.delete(namespace + ".daymoneydeletenum", vo);
 	}
 
 	@Override
 	public void itemupdate(ItemVO vo) throws Exception {
-		session.update(namespace+".itemupdate",vo);
+		session.update(namespace + ".itemupdate", vo);
 	}
 
 	@Override
 	public void updateManager(MemberVO Mvo) throws Exception {
-		session.update(namespace+".updateManager", Mvo);
+		session.update(namespace + ".updateManager", Mvo);
+	}
+
+	@Override
+	public List<NoticeReplVO> noticeReplList(int bno) throws Exception {
+		return session.selectList(namespace + ".noticeReplList", bno);
+	}
+
+	@Override
+	public void noticeReplWrite(NoticeReplVO vo) throws Exception {
+		session.insert(namespace + ".noticeReplWrite", vo);
+	}
+
+	@Override
+	public void noticeReplUpdate(NoticeReplVO vo) throws Exception {
+		session.update(namespace + ".noticeReplUpdate", vo);
+	}
+
+	@Override
+		public void noticeReplDelete(int rno) throws Exception {
+			session.delete(namespace + ".noticeReplDelete", rno);
 	}
 }

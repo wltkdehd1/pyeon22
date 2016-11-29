@@ -10,6 +10,7 @@ import com.pyeon2.domain.Criteria;
 import com.pyeon2.vo.ComItemVO;
 import com.pyeon2.vo.ItemVO;
 import com.pyeon2.vo.MemberVO;
+import com.pyeon2.vo.NoticeReplVO;
 import com.pyeon2.vo.NoticeVO;
 import com.pyeon2.vo.SelectSearch;
 import com.pyeon2.vo.UserVO;
@@ -356,5 +357,25 @@ public class PosServiceImpl implements PosService {
 	@Override
 	public void updateManager(MemberVO Mvo) throws Exception {
 		posDao.updateManager(Mvo);
+	}
+	
+	@Override
+	public List<NoticeReplVO> noticeReplList(int bno) throws Exception {
+		return posDao.noticeReplList(bno);
+	}
+
+	@Override
+	public void noticeReplWrite(NoticeReplVO vo) throws Exception {
+		posDao.noticeReplWrite(vo);
+	}
+
+	@Override
+	public void noticeReplUpdate(NoticeReplVO vo) throws Exception {
+		posDao.noticeReplUpdate(vo);
+	}
+
+	@Override
+	public void noticeReplDelete(int rno) throws Exception {
+		posDao.noticeReplDelete(rno);
 	}
 }
