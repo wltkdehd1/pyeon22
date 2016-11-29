@@ -558,3 +558,16 @@ create sequence p2_daymoney_num
    increment by 1
    start with 1
    nocache;
+   
+   
+alter table sal add code1 varchar2(20);
+alter table sal add code2 number(10);
+alter table sal add billnum varchar2(50);
+
+alter table p2_dayCalc add code1 varchar2(30) default 'bill';
+alter table p2_dayCalc add code2 number(10) default 1000;
+alter table p2_dayCalc add billnum varchar2(50);
+
+alter table p2_daymoney add billnum varchar2(50) default 'null';
+
+insert into P2_DAYCALC values('0000','0000',0,0,'00','00',0,'0',sysdate,'bill',999,'bill999');
