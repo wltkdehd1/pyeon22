@@ -11,6 +11,7 @@
 </head>
 <body>
 	<form action="pop_calcrefurnd_delete">
+		<input type="hidden" name="billnum" value="${billnum }">
 		<input type="hidden" name="num" value="${num }">
 		<input type="hidden" name="area" value="${area }">
 		<table>

@@ -379,4 +379,19 @@ public class PosDAOImpl implements PosDAO {
 		public void noticeReplDelete(int rno) throws Exception {
 			session.delete(namespace + ".noticeReplDelete", rno);
 	}
+
+	@Override
+	public String code1() throws Exception {
+		return session.selectOne(namespace+".code1");
+	}
+
+	@Override
+	public int code2() throws Exception {
+		return session.selectOne(namespace+".code2");
+	}
+
+	@Override
+	public int num(ItemVO vo) throws Exception {
+		return session.selectOne(namespace+".num",vo);
+	}
 }

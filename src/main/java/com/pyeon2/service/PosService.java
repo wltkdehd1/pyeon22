@@ -213,6 +213,15 @@ public interface PosService {
 	
 	// 지점장 본인 정보 수정하기
 	public void updateManager(MemberVO Mvo) throws Exception;
+	
+	//code1가져오기
+	public String code1() throws Exception;
+	
+	//code2가져오기
+	public int code2() throws Exception;
+	
+	//num 가져오기
+	public int num(ItemVO vo) throws Exception;
 
 	//댓글 리스트
 	public List<NoticeReplVO> noticeReplList(int bno) throws Exception;
