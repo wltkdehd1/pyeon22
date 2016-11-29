@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+      "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+      "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+
+
+<tiles-definitions>
+	<!-- company -->
+	<definition name=".company" template="/WEB-INF/views/company/layout/main.jsp">
+		<put-attribute name="header"
+			value="/WEB-INF/views/company/layout/header.jsp" />
+		<put-attribute name="menu"
+			value="/WEB-INF/views/company/layout/menu.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer"
+			value="/WEB-INF/views/company/layout/footer.jsp" />
+	</definition>
+
+	<definition name=".company.*" extends=".company">
+		<put-attribute name="body" value="/WEB-INF/views/company/{1}.jsp" />
+	</definition>
+	
+
+
+	<!-- pos -->
+	<definition name=".pos" template="/WEB-INF/views/pos/layout/main.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/pos/layout/header.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/views/pos/layout/menu.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/pos/layout/footer.jsp" />
+	</definition>
+
+	<definition name=".pos.*" extends=".pos">
+		<put-attribute name="body" value="/WEB-INF/views/pos/{1}.jsp" />
+	</definition>
+	
+</tiles-definitions>

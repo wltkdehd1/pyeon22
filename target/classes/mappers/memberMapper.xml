@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.pyeon2.mappers.MemberMapper">
+
+	<!-- 로그인 메소드 -->
+	<select id="getMember" parameterType="String" resultType="com.pyeon2.vo.MemberVO">
+		select * from p2_member where id = #{id}
+	</select>
+	
+	<!-- 로그인 시 출근처리(알바만) 메소드 -->
+	<update id="userstart" parameterType="com.pyeon2.vo.UserVO">
+		update p2_user set go_time = sysdate where userid = #{userid}
+	</update>
+	
+	<!-- 로그아웃 시 퇴근처리(알바만) 메소드 -->
+	<update id="userfinsh" parameterType="com.pyeon2.vo.UserVO">
+		update p2_user set back_time = sysdate where userid = #{userid}
+	</update>
+	
+	<!-- 로그아웃 시 출/퇴근 시간 계산하여 일급 계산 메소드 -->
+	<insert id="userinsertmoney" parameterType="com.pyeon2.vo.MemberVO">
+		insert into p2_userMoney(year,month,day,userid,hour,money,area) 
+		values ((SELECT TO_CHAR(go_time, 'YYYY' ) as year FROM p2_user where userid = #{id}),
+		(SELECT TO_CHAR(go_time, 'MM' ) as month FROM p2_user where userid = #{id}) ,(SELECT TO_CHAR(go_time, 'dd' ) as day FROM p2_user where userid = #{id}),
+		(SELECT TO_CHAR(NAME) as NAME FROM P2_MEMBER WHERE ID = #{id}),(SELECT ROUND((back_time-go_time)*24) as hour FROM p2_user where userid = #{id}),
+		(SELECT ROUND((back_time-go_time)*24)*5000 as money FROM p2_user where userid = #{id}),(SELECT TO_CHAR(area) as area FROM P2_MEMBER WHERE ID = #{id}))
+	</insert>
+	
+	<!-- 로그아웃 시 일급 계산 저장 시 지점을 찾아주는 메소드 -->
+	<select id="checkId" resultType="com.pyeon2.vo.MemberVO">
+		select position, area from p2_member where id = #{userid}
+	</select>
+
+	
+	<!-- 공지사항 글쓰기 이름 , position가져오는 메소드 -->
+	<select id="getname" resultType="com.pyeon2.vo.MemberVO" parameterType="com.pyeon2.vo.MemberVO"> 
+		select name,position from p2_member where id = #{id}
+	</select>
+	
+</mapper>

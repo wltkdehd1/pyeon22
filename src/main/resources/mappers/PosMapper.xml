@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pyeon2.mappers.PosMapper">
+
+	<!-- 발주 신청 임시 리스트 메소드 -->
+	<insert id="insertOrderTemp">
+		insert into orderReq_temp(bno, item_code, item_name, count, category, area, state)
+		values(orderReq_temp_num.nextVal, #{item_code}, #{item_name}, #{count}, #{category}, #{area}, #{state})
+	</insert>
+	
+	<update id="insertOrder">
+		<![CDATA[
+        MERGE INTO orderReq a
+            USING dual
+               on (a.item_code = #{item_code} AND 
+                   a.area = #{area})
+             WHEN MATCHED THEN
+             UPDATE SET
+                 a.count = a.count + #{count}, a.p2_time = sysdate
+                 where a.item_code = #{item_code} and a.area = #{area}
+              WHEN NOT MATCHED THEN
+                INSERT (      
+                			  a.bno,
+                              a.item_code, 
+                              a.item_name, 
+                              a.count, 
+                              a.category,
+                              a.area,
+                              a.state
+                        ) 
+                values (
+                			  orderReq_num.nextVal,
+                              #{item_code},
+                              #{item_name},
+                              #{count},
+                              #{category},
+                              #{area},
+                              #{state}
+                        )
+          ]]>
+	</update>
+	
+	<!-- 발주 신청 리스트 입력 -->
+	<insert id="orderInsert">
+		insert into orderReqState values(orderReqState_num.nextVal, #{item_code}, #{item_name}, #{count}, #{category}, #{area}, #{p2_time}, #{state})
+	</insert>
+	
+	<!-- 발주 신청 임시 리스트 삭제 -->
+	<delete id="orderTempDelete" parameterType="com.pyeon2.vo.ItemVO">
+		delete from orderReq_temp where item_code = #{item_code} and area = #{area}
+	</delete>
+	
+	<!-- 물품(재고) 전체 리스트 출력 메소드 -->
+	<select id="getList" resultType="com.pyeon2.vo.ItemVO">
+		<![CDATA[
+			select
+  				bno, item_code, item_name, item_image, price, count, hit, category, area
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, item_code, item_name, item_image, price, count, hit, category, area
+ 					from p2_item
+  					where rownum <= #{cri.page} * #{cri.perPageNum}
+  					and bno > 0
+  					and area = #{area}
+  				)
+			where rn > (#{cri.page} -1) * #{cri.perPageNum} order by bno asc
+ 		]]>
+		<!-- select * from (select ROWNUM num, N.* from (select * from p2_item) N) where num between #{page} and #{perPageNum} -->
+	</select>
+	
+	<!-- 물품(재고) 이름으로 검색하여 리스트 출력 메소드 -->
+	<select id="selectName" resultType="com.pyeon2.vo.ItemVO" parameterType="com.pyeon2.vo.SelectSearch">
+		<![CDATA[
+			select
+  				bno, item_code, item_name, item_image, price, count, hit, category, area
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, item_code, item_name, item_image, price, count, hit, category, area
+ 					from p2_item
+  					where rownum <= #{page} * #{perPageNum}
+  					and bno > 0
+  					and item_name like #{item_name}
+  					and category = #{category}
+  					and area = #{area}
+  				)
+			where rn > (#{page} -1) * #{perPageNum} order by bno asc
+ 		]]>
+	</select>
+	
+	<!-- 물품 개수 -->
+	<select id="getCount" resultType="Integer" parameterType="com.pyeon2.vo.ItemVO">
+		SELECT count(*) FROM p2_item where area = #{area}
+	</select>
+	
+	<!-- 선택된 물품 개수 -->
+	<select id="getSelectCount" resultType="Integer" parameterType="com.pyeon2.vo.ItemVO">
+		SELECT count(*) FROM p2_item where item_name like #{item_name} and area = #{area}
+	</select>
+	
+	<!-- 선택된 물품 개수 상품명이 없을 경우-->
+	<select id="getSelectCount2" resultType="Integer" parameterType="com.pyeon2.vo.ItemVO">
+		SELECT count(*) FROM p2_item where category = #{category} and area = #{area}
+	</select>
+	
+	<!-- 물품(재고) 제거 메소드 -->
+	<delete id="Delete" parameterType="com.pyeon2.vo.ItemVO">
+		delete from p2_item where item_code = #{item_code} and area = #{area}
+	</delete>
+	
+	<!-- 알바가 일한 월 -->
+	<select id="selectalpayAll" resultType="com.pyeon2.vo.UserVO" parameterType="com.pyeon2.vo.UserVO">
+		select userid,year,month,area,sum(hour) as hour,sum(money) as money from p2_userMoney where userid=(SELECT TO_CHAR(NAME) as NAME FROM P2_MEMBER WHERE ID = #{userid}) group by area,userid,year,month order by area,userid,year,month
+	</select>
+	
+	<!-- 알바가 지정한 월 -->
+	<select id="selectalpay" resultType="com.pyeon2.vo.UserVO" parameterType="com.pyeon2.vo.UserVO">
+		select userid,year,month,area,sum(hour) as hour,sum(money) as money from p2_userMoney where userid=(SELECT TO_CHAR(NAME) as NAME FROM P2_MEMBER WHERE ID = #{userid}) and year=#{year} and month = #{month} group by area,userid,year,month order by area,userid,year,month 
+	</select>
+	
+	<!-- 메니저  -->
+	<select id="selectmanpayAll" resultType="com.pyeon2.vo.UserVO" parameterType="com.pyeon2.vo.UserVO">
+		select userid,year,month,area,sum(hour) as hour,sum(money) as money from p2_userMoney where area = (SELECT TO_CHAR(area) as area FROM P2_MEMBER WHERE ID = #{userid}) group by area,userid,year,month order by area,userid,year,month 
+	</select>
+	
+	<!-- 메니저  지정 월-->
+	<select id="selectmanpay" resultType="com.pyeon2.vo.UserVO" parameterType="com.pyeon2.vo.UserVO">
+		select userid,year,month,area,sum(hour) as hour,sum(money) as money from p2_userMoney where year=#{year} and month =#{month} and area = (SELECT TO_CHAR(area) as area FROM P2_MEMBER WHERE ID = #{userid}) group by area,userid,year,month order by area,userid,year,month
+	</select>
+	
+	<!-- 아르바이트 리스트 불러오기 (position=user인 아이들) -->
+	<select id="selectUser" resultType="com.pyeon2.vo.MemberVO" parameterType="com.pyeon2.vo.MemberVO">
+		select * from p2_member where position = 'user' and area = (select area from p2_member where id = #{id})
+	</select>
+	
+	<!-- 아르바이트 리스트 불러오기 (매니저의 id만 받아와서) -->
+	<select id="selectUserId" resultType="com.pyeon2.vo.MemberVO" parameterType="com.pyeon2.vo.MemberVO">
+		select * from p2_member where id = #{id}
+	</select>
+	
+	<!-- 아르바이트생 정보 수정하기 -->
+	<update id="updateUser" parameterType="com.pyeon2.vo.MemberVO">
+		update p2_member set pwd = #{pwd}, name = #{name}, 
+		phone = #{phone}, age = #{age}, 
+		postcode = #{postcode}, address = #{address}, address2 = #{address2}, 
+		optime = #{optime}
+		where id = #{id}
+	</update>
+	
+	<!-- 아르바이트생 정보 삭제하기 -->
+	<delete id="deleteUser" parameterType="com.pyeon2.vo.MemberVO">
+		delete from p2_member where id = #{id}
+	</delete>
+	
+	<!-- 아르바이트생 권한 삭제하기 -->
+	<delete id="deleteRole" parameterType="com.pyeon2.vo.MemberVO">
+		delete from role where id = #{id}
+	</delete>
+	
+	<!-- 아르바이트생 p2_user 테이블 정보 삭제 -->
+	<delete id="deleteUserTime" parameterType="com.pyeon2.vo.UserVO">
+		delete from p2_user where userid = #{userid}
+	</delete>
+	
+	<!-- 아르바이트생 정보 입력 -->
+	<insert id="insertUser" parameterType="com.pyeon2.vo.MemberVO">
+		insert into p2_member(id, pwd, name, position, phone, age, postcode, address, address2, gender, area, optime)
+		values(#{id}, #{pwd}, #{name}, #{position}, #{phone}, #{age}, 
+		#{postcode}, #{address}, #{address2}, #{gender}, #{area}, #{optime})
+	</insert>
+	
+	<!-- 입력된 정보를 바탕으로 권한 자동으로 주기 -->
+	<insert id="insertPosition" parameterType="com.pyeon2.vo.MemberVO">
+		insert into role(id, role_name) values(#{id}, #{role_name})
+	</insert>
+	
+	<!-- 아르바이트생 등록 시 월급 계산을 위해 p2_user 테이블에 처음 등록하기 -->
+	<insert id="insertUserTime" parameterType="com.pyeon2.vo.UserVO">
+		insert into p2_user(userid, area) values (#{userid}, (select area from p2_member where id = #{userid}))
+	</insert>
+	
+	<!-- 계산 목록 -->
+	<select id="calcList" resultType="com.pyeon2.vo.ItemVO">
+		select * from p2_calc
+	</select>
+	
+	<!-- 계산 목록 뿌리는것 -->
+	<select id="calcLists" resultType="com.pyeon2.vo.ItemVO" parameterType="com.pyeon2.vo.MemberVO">
+		select * from p2_calc where area = #{area}
+	</select>
+	
+	<!-- 계산 가격 총액 -->
+ 	<select id="totalcalc" resultType="Integer" parameterType="com.pyeon2.vo.MemberVO">
+		select sum(price) from p2_calc where area = #{area}
+	</select>
+	
+	<!-- 계산 목록에 입력 -->
+	<insert id="calcinsert" parameterType="com.pyeon2.vo.ItemVO">
+		insert into p2_calc(item_code,item_name,price,count,category,area) values(#{item_code},(select item_name from p2_item where item_code = #{item_code} and area =#{area}),
+		(select price from p2_item where item_code = #{item_code} and area =#{area}),1,(select category from p2_item where item_code = #{item_code} and area =#{area}),#{area})
+	</insert>
+	
+	<!-- 계산 목록 업데이트(count&price) -->
+	<update id="clacupdate" parameterType="com.pyeon2.vo.ItemVO">
+		update p2_calc set price = (select price from p2_item where item_code = #{item_code} and area = #{area})*((select count from p2_calc where item_code = #{item_code} and area = #{area})+1) , count = count+1 where item_code = #{item_code} and area = #{area}
+	</update>
+	
+	<!-- 계산된 총액과 시간 저장 -->
+	<insert id="salinsert" parameterType="com.pyeon2.vo.ItemVO">
+		insert into sal(sold,pay,paynum,sal_time,area) values('판매',#{total},paynum.nextVal,(SELECT TO_CHAR(sysdate, 'YYYY-MM-dd HH24:mi' ) as sysdates FROM dual ),#{area})
+	</insert>
+	
+	<!-- 정산하는 부분에 리스트 저장 -->
+	<insert id="daycalcinser" parameterType="com.pyeon2.vo.ItemVO">
+		insert into p2_dayCalc(item_code,item_name,price,count,category,area,num,p2_time) values (#{item_code},#{item_name},#{price},#{count},#{category},#{area},(select max(paynum) from sal),(select sal_time from sal where paynum = (select max(paynum) from sal)))
+	</insert>
+	
+	<!-- 계산 목록 계산시 삭제 -->
+	<delete id="calcdelete" parameterType="com.pyeon2.vo.ItemVO">
+		delete from p2_calc where area = #{area}
+	</delete>
+	
+	<!-- 물품이 팔린만큼 제고에서  hit&count 업데이트 -->
+	<update id="hitupdate" parameterType="com.pyeon2.vo.ItemVO">
+		update p2_item set hit = hit + #{count} , count = count - #{count} where item_code = #{item_code} and area = #{area}
+	</update>
+	
+	<select id="areaserch" resultType="String" parameterType="com.pyeon2.vo.ItemVO"> 
+		SELECT TO_CHAR(area) as area FROM P2_MEMBER WHERE ID = #{id}
+	</select>
+	
+	<!-- 본사 물품 리스트 -->
+	<select id="getCompanyList" resultType="com.pyeon2.vo.ComItemVO">
+		<![CDATA[
+			select
+  				bno, item_code, item_name, item_image, cost, price, count, category
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, item_code, item_name, item_image, cost, price, count, category
+ 					from company_item
+  					where rownum <= #{page} * #{perPageNum}
+  					and bno > 0
+  				)
+			where rn > (#{page} -1) * #{perPageNum} order by bno asc
+ 		]]>
+	</select>
+	
+	<!-- 본사 물품 재고 수 -->
+	<select id="getCompanyCount" resultType="Integer">
+		select count(*) from company_item
+	</select>
+	
+	<!-- 지점장의 지역 검색 -->
+	<select id="getArea" resultType="String">
+		select area from p2_member where id = #{name}
+	</select>
+	
+	<!-- 발주 임시 테이블 리스트 -->
+	<select id="orderTempList" resultType="com.pyeon2.vo.ItemVO" parameterType="com.pyeon2.domain.Criteria">
+		<![CDATA[
+			select
+  				bno, item_code, item_name, count, category, area, p2_time
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, item_code, item_name, count, category, area, p2_time
+ 					from orderReq_temp
+  					where rownum <= #{page} * #{perPageNum}
+  					and bno > 0
+  				)
+			where rn > (#{page} -1) * #{perPageNum} order by bno asc
+ 		]]>
+	</select>
+	
+	<!-- 발주 임시 테이블 리스트 개수 -->
+	<select id="orderTempCount" resultType="Integer">
+		select count(*) from orderReq_temp
+	</select>
+	
+	<!-- 발주 임시 테이블 카운트 업데이트 -->
+	<update id="updateOrderTemp" parameterType="com.pyeon2.vo.ItemVO">
+		update orderReq_temp set count = count + #{count} where item_code = #{item_code} and area = #{area}
+	</update>
+	
+	<!-- 발주 신청 임시저장 리스트에서 item_code, area 리스트 -->
+	<select id="orderTempCompare" resultType="com.pyeon2.vo.ItemVO">
+		select item_code, item_name, count, category, area, p2_time, state from orderReq_temp
+	</select>
+	
+	<!-- 발주 신청 임시저장 리스트 전체 삭제 -->
+	<delete id="orderTempDeleteAll">
+		delete orderReq_temp
+	</delete>
+	
+	<!-- 이미 발주 신청된 리스트 -->
+	<select id="selectAlreadyOrderedList" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		select * from orderReq_temp
+	</select>
+	
+	<!-- 발주 비용 -->
+	<update id="orderSpend" parameterType="com.pyeon2.vo.ItemVO">
+		<!-- insert into orderSpend (bno, spend, pay, spend_date, area) values(
+		orderSpend_num.nextVal,
+		'지출',
+		#{totalPrice},
+		SYSDATE,
+		#{area}) -->
+		
+		<!-- <![CDATA[
+        MERGE INTO orderSpend a
+            USING dual
+               on (a.pay = null AND a.bno = #{bno})
+             WHEN MATCHED THEN
+             UPDATE SET
+             	 a.pay = #{totalPrice} where a.bno = #{bno}         
+             WHEN NOT MATCHED THEN
+             UPDATE SET      
+                 a.pay = a.pay + #{totalPrice} where a.bno = #{bno}
+          ]]> -->
+          <![CDATA[
+			update orderSpend set pay = pay + #{totalPrice} where bno = #{bno} and area = #{area}
+          ]]>
+	</update>
+	
+	<!-- 발주 현황 리스트 -->
+	<select id="getStateList" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		select * from orderReqState where area = #{area}
+	</select>
+
+	<!-- 아이템별 가격 -->
+	<select id="getPrice" parameterType="com.pyeon2.vo.ItemVO" resultType="Integer">
+		select (cost * #{count}) from company_item where item_code = #{item_code}
+	</select>
+	
+	<!-- 발주 현황 삭제 -->
+	<delete id="deleteOrder" parameterType="com.pyeon2.vo.ItemVO">
+		delete from orderReqState where item_code = #{item_code} and p2_time = #{p2_time}
+	</delete>
+	
+	<!-- orderSpend Sequence 추출 -->
+	<select id="getSpendSequence" resultType="Integer" parameterType="com.pyeon2.vo.ItemVO">
+		select max(bno) from orderSpend
+	</select>
+	
+	<!-- price 계산 전 임시로 orderSpend 컬럼 생성 -->
+	<insert id="orderSpendTemp" parameterType="com.pyeon2.vo.ItemVO">
+		insert into orderSpend (bno, spend, pay, spend_date, area) values(orderSpend_num.nextVal, '발주', 0, SYSDATE, #{area})
+	</insert>
+	
+		<!-- sal 리스트 가져오기 -->
+	<select id="sallist" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		select * from sal where area = #{area}
+	</select>
+	
+	
+	<!-- orderspend 리스트 가져오기 -->
+	<select id="orderSpendlist" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		select spend , pay , TO_CHAR(spend_date, 'YYYY-MM-dd HH24:mi' ) as sal_time from orderspend where area = #{area}
+	</select>
+	
+	<!-- sal , orderspend 리스트 p2_daymoney 에 insert -->
+	<insert id="daymoneyinsert" parameterType="com.pyeon2.vo.ItemVO">
+		insert into p2_daymoney(bno, num,title,content,pay,year,month,days,dayda,area) values(p2_daymoney_num.nextVal, #{paynum},#{title},#{content},#{pay},(SELECT TO_CHAR(sysdate, 'YYYY' )FROM dual ),(SELECT TO_CHAR(sysdate, 'MM' ) FROM dual ),(SELECT TO_CHAR(sysdate, 'dd' ) FROM dual ),sysdate,#{area})
+		<!-- <choose>
+			<when test="#{content == '수입'}">
+				insert into p2_daymoney(num,title,content,pay,year,month,days,dayda,area) values(#{paynum},#{title},#{content},#{pay}, 
+				(select TO_CHAR(sal_time, 'YYYY' ) from sal where sal_time = #{p2_time}), 
+				(select TO_CHAR(sal_time, 'MM' ) from sal where sal_time = #{p2_time}), 
+				(select TO_CHAR(sal_time, 'dd' ) from sal where sal_time = #{p2_time}), 
+				sysdate, #{area})
+			</when>
+			<when test="#{content =='지출'}">
+				insert into p2_daymoney(num,title,content,pay,year,month,days,dayda,area) values(#{paynum},#{title},#{content},#{pay}, 
+				(select TO_CHAR(spend_date, 'YYYY' ) from orderSpend where spend_date = #{p2_time}), 
+				(select TO_CHAR(spend_date, 'MM' ) from orderSpend where spend_date = #{p2_time}), 
+				(select TO_CHAR(spend_date, 'dd' ) from orderSpend where spend_date = #{p2_time}), 
+				sysdate, #{area})
+			</when>
+		</choose> -->
+	</insert>
+	
+	<!-- p2_daymoney 리스트 가져오기 -->
+	<select id="daymoneylist" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		<!-- select title , content , pay , TO_CHAR(dayda, 'YYYY-MM-dd HH24:mi' ) as sal_time from p2_daymoney where area = #{area} 
+		and year like #{year} and month like #{month} order by dayda -->
+		<!-- TO_CHAR(dayda, 'YYYY-MM-dd HH24:mi' ) -->
+		<![CDATA[
+			select
+  				bno, title , content , pay , dayda, area , num
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, title , content , pay , dayda, area , num
+ 					from p2_daymoney
+  					where rownum <= #{cri.page} * #{cri.perPageNum}
+  					and bno > 0
+  					and area like #{area}
+  					and year like #{year}
+  					and month like #{month}
+  				)
+			where rn > (#{cri.page} -1) * #{cri.perPageNum} order by dayda
+ 		]]>
+	</select>
+	
+	<!-- sal 리스트 delete -->
+	<delete id="daysaldelete" parameterType="com.pyeon2.vo.ItemVO">
+		delete from sal where area = #{area}
+	</delete>
+	
+	<!-- orderSpend 리스트 delete -->
+	<delete id="dayspenddelete" parameterType="com.pyeon2.vo.ItemVO">
+		delete from orderSpend where area = #{area}
+	</delete>
+	
+	<!-- sal 리스트 총액 -->
+	<select id="daysaltotalpay" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		select sum(pay) as pay from p2_daymoney where area like #{area} and title = '판매' and year like #{year} and month like #{month}
+	</select>
+	
+	<!-- sal 리스트 총액 -->
+	<select id="daysalspendpay" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		select sum(pay) as pay from p2_daymoney where area like #{area} and title = '지출' and year like #{year} and month like #{month}
+	</select>
+	
+	<!-- daymoney의 총 컬럼 수 -->
+	<select id="daymoneyCount" parameterType="com.pyeon2.vo.ItemVO" resultType="String">
+		select count(*) from p2_daymoney where year like #{year} and month like #{month}
+	</select>
+	
+	<!-- 메인 페이지에 공지사항 최근 5개글 띄우기  -->
+	<select id="getNoticeList" resultType="com.pyeon2.vo.NoticeVO">
+		SELECT * FROM ( SELECT * FROM COMPANY_NOTICE ORDER BY NOTICENUM DESC )
+		<![CDATA[
+		WHERE ROWNUM <= 5
+		]]>
+	</select>
+	
+	<!-- 재고 10개 미만인 물건 불러오기 -->
+	<select id="getLessItem" parameterType="com.pyeon2.vo.MemberVO" resultType="com.pyeon2.vo.ItemVO">
+		SELECT * FROM P2_ITEM 
+		<![CDATA[
+		WHERE COUNT <= 10
+		]]>
+		AND AREA = #{area}
+	</select>
+	
+	<!-- 재고 10개 미만인 물건 카운트 -->
+	<select id="getLessItemCount" parameterType="com.pyeon2.vo.MemberVO" resultType="Integer">
+		SELECT COUNT(*) FROM P2_ITEM
+		<![CDATA[
+		WHERE COUNT <= 10
+		]]>
+		AND AREA = #{area}
+	</select>
+	
+	<!-- daycalc 리스트 가져오기 -->
+	<select id="daycalclist" parameterType="com.pyeon2.vo.ItemVO" resultType="com.pyeon2.vo.ItemVO">
+		select item_code , item_name , count , price from p2_daycalc where area = #{area} and num = #{paynum}
+	</select>
+	
+	<!-- 환불목록 삭제 -->
+	<delete id="daycalclistdelete" parameterType="com.pyeon2.vo.ItemVO">
+		delete from p2_daycalc where area = #{area} and num = #{paynum}
+	</delete>
+	
+	<!-- daymoney 리스트가져오기 -->
+	<select id="daymoneyselect" resultType="com.pyeon2.vo.ItemVO">
+		select num from p2_daymoney 
+	</select>
+	
+	<!-- sal num으로 지우기 -->
+	<delete id="saldeletenum" parameterType="com.pyeon2.vo.ItemVO">
+		delete from sal where area = #{area} and paynum = #{paynum}
+	</delete>
+	
+	<!-- p2_daymoney num으로 지우기 -->
+	<delete id="daymoneydeletenum" parameterType="com.pyeon2.vo.ItemVO">
+		delete from p2_daymoney where area = #{area} and num = #{paynum}
+	</delete>
+	
+	<!-- item_update -->
+	<update id="itemupdate">
+		update p2_item set count = count + #{count} , hit = hit - #{count} where area = #{area} and item_code = #{item_code}
+	</update>
+	
+	<!-- 지점장 본인 정보 수정하기 -->
+	<update id="updateManager">
+		update p2_member set pwd = #{pwd}, name = #{name}, 
+		phone = #{phone}, age = #{age}, 
+		postcode = #{postcode}, address = #{address}, address2 = #{address2}
+		where id = #{id}
+	</update>
+	
+</mapper>

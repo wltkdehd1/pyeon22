@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pyeon2.mappers.CompanyMapper">
+
+	<!-- 발주 목록 확인 메소드 -->
+	<select id="orderList" resultType="com.pyeon2.vo.ItemVO">
+		select * from orderReq order
+		by p2_time
+	</select>
+
+	<!-- 발주 승인 시 해당 지점의 재고 갯수 추가해주는 메소드 -->
+	<update id="updateItemCount">
+		update p2_item set count = count +
+		#{count} where
+		item_code = #{item_code} and area = #{area}
+	</update>
+
+	<!-- 발주 승인 후 발주신청 목록 제거 메소드 -->
+	<delete id="odertDelete">
+		delete from orderReq where item_code = #{item_code}
+		and area = #{area}
+	</delete>
+
+	<!-- 발주 승인 시 본사 재고 수량 변경 -->
+	<update id="orderUpdate" parameterType="com.pyeon2.vo.ItemVO">
+		update company_item set
+		count = count - #{count} where item_code = #{item_code}
+	</update>
+
+	<!-- 본사에서 회원 검색했을 때 관리자(admin)와 지점장(manager)만 출력 - 본사는 알바생들 관리 안하기 때문 -->
+	<select id="getAdminMember" resultType="com.pyeon2.vo.MemberVO">
+		select * from p2_member
+		where position = 'admin' or position = 'manager'
+	</select>
+
+	<!-- 관리자/지점장 sorting 해서 리스트 출력 -->
+	<select id="getPSMember" resultType="com.pyeon2.vo.MemberVO">
+		select id, name, position,
+		phone, age, address, address2, gender, area
+		from
+		p2_member
+		where position =
+		#{position}
+	</select>
+
+	<!-- 관리자/지점장 정보 입력 -->
+	<insert id="insertAdminMember" parameterType="com.pyeon2.vo.MemberVO">
+		insert into
+		p2_member(id, pwd, name, position, phone, age, postcode, address, address2, gender, area)
+		values(#{id}, #{pwd}, #{name}, #{position}, #{phone}, #{age}, 
+		#{postcode}, #{address}, #{address2}, #{gender}, #{area})
+	</insert>
+
+	<!-- 입력된 정보를 바탕으로 권한 자동으로 주기 -->
+	<insert id="insertPosition" parameterType="com.pyeon2.vo.MemberVO">
+		insert into role(id,
+		role_name) values(#{id}, #{role_name})
+	</insert>
+
+	<!-- 지점별 재고 현황(물품) 불러오는 리스트 -->
+	<select id="areaItemList" parameterType="com.pyeon2.vo.ItemVO"
+		resultType="com.pyeon2.vo.ItemVO">
+		<![CDATA[
+			select
+  				bno, item_code, item_name, item_image, price, count, hit, category, area
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, item_code, item_name, item_image, price, count, hit, category, area
+ 					from p2_item
+  					where rownum <= #{cri.page} * #{cri.perPageNum}
+  					and bno > 0
+  					and area like #{area}
+  					and category like #{category}
+  					and item_name like #{item_name}
+  				)
+			where rn > (#{cri.page} -1) * #{cri.perPageNum} order by bno asc
+ 		]]>
+	</select>
+
+	<!-- 아이디별 멤버 정보 불러오는 리스트 (수정하기위함) -->
+	<select id="getMember" parameterType="com.pyeon2.vo.MemberVO"
+		resultType="com.pyeon2.vo.MemberVO">
+		select * from p2_member where id = #{id}
+	</select>
+
+	<!-- 아이디별 멤버 수정 -->
+	<update id="updateMember" parameterType="com.pyeon2.vo.MemberVO">
+		update p2_member set pwd
+		= #{pwd}, name = #{name},
+		phone = #{phone}, age = #{age},
+		postcode = #{postcode}, address = #{address}, address2 = #{address2}, 
+		area = #{area}
+		where
+		id = #{id}
+	</update>
+
+	<!-- 모든 멤버 리스트 출력 -->
+	<select id="getAllMember" parameterType="com.pyeon2.vo.MemberVO"
+		resultType="com.pyeon2.vo.MemberVO">
+		select * from p2_member where position = 'admin' or
+		position = 'manager'
+	</select>
+
+	<!-- 멤버 정보 삭제 -->
+	<delete id="deleteMember" parameterType="com.pyeon2.vo.MemberVO">
+		delete from p2_member
+		where id = #{id}
+	</delete>
+
+	<!-- 멤버 권한 삭제하기 -->
+	<delete id="deleteRole" parameterType="com.pyeon2.vo.MemberVO">
+		delete from role where id
+		= #{id}
+	</delete>
+
+	<!-- 본사 전체 재고 확인 -->
+	<select id="comItemListAll" resultType="com.pyeon2.vo.ComItemVO">
+		<![CDATA[
+			select
+  				bno, item_code, item_name, item_image, cost, price, count, category
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, item_code, item_name, item_image, cost, price, count, category
+ 					from company_item
+  					where rownum <= #{page} * #{perPageNum}
+  					and bno > 0
+  				)
+			where rn > (#{page} -1) * #{perPageNum} order by bno asc
+ 		]]>
+	</select>
+
+	<!-- 본사 재고 수 -->
+	<select id="getComItemCount" resultType="Integer">
+		select count(*) from
+		company_item
+	</select>
+
+	<!-- 본사 전체 재고 카테고리별 리스트 -->
+	<select id="comItemList" resultType="com.pyeon2.vo.ComItemVO"
+		parameterType="com.pyeon2.vo.ComItemVO">
+		<![CDATA[
+			select
+  				bno, item_code, item_name, item_image, cost, price, count, category
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, bno, item_code, item_name, item_image, cost, price, count, category
+ 					from company_item
+  					where rownum <= #{cri.page} * #{cri.perPageNum}
+  					and bno > 0
+  					and category = #{category}
+  				)
+			where rn > (#{cri.page} -1) * #{cri.perPageNum} order by bno asc
+ 		]]>
+	</select>
+
+	<!-- 카테고리별 본사 재고 수 -->
+	<select id="getComItemCountCategory" resultType="Integer"
+		parameterType="String">
+		select count(*) from company_item where category =
+		#{category}
+	</select>
+
+	<!-- 지점별 재고 수 -->
+	<select id="getAreaCount" parameterType="com.pyeon2.vo.ItemVO"
+		resultType="Integer">
+		select count(*) from p2_item where category like
+		#{category} and area like #{area} and item_name like #{item_name}
+	</select>
+
+	<!-- 발주 승인,미승인 수정 메소드 -->
+	<update id="updateOrderState">
+		update orderReqState set state = #{state} where state = '승인 대기' and area = #{area} and item_code = #{item_code}
+	</update>
+	
+	<!-- 공지사항 리스트 검색 -->
+	<select id="getnoticelist" resultType="com.pyeon2.vo.NoticeVO" parameterType="com.pyeon2.vo.NoticeVO">
+		<!-- <![CDATA[
+			select
+  				noticenum, title, name, position, contant, noticedate
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, noticenum, title, name, position, contant, noticedate
+ 					from company_notice
+  					where 
+  					title like #{title}
+  				)
+			where 
+			rn > (select count(*) from company_notice) - (#{cri.page} * #{cri.perPageNum}) and
+			rn <= (select count(*) from company_notice) - ((#{cri.page} - 1) * #{cri.perPageNum}) order by noticenum desc
+ 		]]> -->
+ 		<![CDATA[
+			select
+  				noticenum, title, name, position, contant, noticedate
+			from
+  				(
+  					select
+    				/*+INDEX_DESC(tbl_board, pk_board)*/
+    					rownum rn, noticenum, title, name, position, contant, noticedate
+ 					from company_notice
+  					where 
+  					rownum <= (select count(*) from company_notice) - ((#{cri.page} - 1) * #{cri.perPageNum})
+  					and noticenum > 0
+  					and title like #{title}
+  				)
+			where 
+			rn > (select count(*) from company_notice) - (#{cri.page} * #{cri.perPageNum}) 
+			order by noticenum desc
+ 		]]>
+	</select>
+	
+	<!-- 공지사항 글쓰기 -->
+	<insert id="noticewrite" parameterType="com.pyeon2.vo.NoticeVO">
+		insert into company_notice(noticenum,title,name,position,contant,noticedate) values(noticenum.nextVal,#{title},#{name},#{position},#{contant},(SELECT TO_CHAR(sysdate, 'YYYY-MM-dd HH24:mi' ) FROM dual ))
+	</insert>
+	
+	<!-- 공지사항 내용 가져오기 -->
+	<select id="getnoticecontant" resultType="com.pyeon2.vo.NoticeVO" parameterType="com.pyeon2.vo.NoticeVO">
+		select * from company_notice where noticenum = #{noticenum}
+	</select>
+	
+	<!-- 공지사항 업데이트 -->
+	<update id="noticeupdate" parameterType="com.pyeon2.vo.NoticeVO">
+		update company_notice set title = #{title} , contant = #{contant} where noticenum = #{noticenum}
+	</update>
+	
+	<!-- 공지 사항 삭제 -->
+	<delete id="noticedelete" parameterType="com.pyeon2.vo.NoticeVO">
+		delete from company_notice where noticenum = #{noticenum}
+	</delete>
+	
+	<!-- 메인 페이지에 미승인 건 최근 5개글 띄우기 -->
+	<select id="getNotConfirm" resultType="com.pyeon2.vo.ItemVO">
+		SELECT * FROM ( SELECT * FROM ORDERREQ ORDER BY BNO DESC )
+		<![CDATA[
+		WHERE ROWNUM <= 5
+		]]>
+	</select>
+	
+	<!-- 미승인 건 카운트 -->
+	<select id="getNotConfirmCount" resultType="Integer">
+		SELECT COUNT(*) FROM ORDERREQ
+	</select>
+	
+	<!-- 달력 메모 입력 / 업데이트 -->
+	<update id="calendarMemoInsert" parameterType="com.pyeon2.vo.CalendarMemoVO">
+		<![CDATA[
+        MERGE INTO calendarMemo a
+            USING dual
+               on (a.year = #{year} AND 
+                   a.month = #{month} AND
+                   a.day = #{day})
+             WHEN MATCHED THEN
+             UPDATE SET
+                 a.content = #{content} where 
+                 a.year = #{year} AND 
+                 a.month = #{month} AND
+                 a.day = #{day}
+              WHEN NOT MATCHED THEN
+                INSERT (      
+                			  a.year,
+                              a.month, 
+                              a.day, 
+                              a.content
+                        ) 
+                values (
+                			  #{year},
+                			  #{month},
+                			  #{day},
+                			  #{content}
+                        )
+          ]]>
+	</update>
+	
+	<!-- 달력 메모 리스트 -->
+	<select id="calendarMemoList" resultType="com.pyeon2.vo.CalendarMemoVO" parameterType="com.pyeon2.vo.CalendarMemoVO">
+		select year, month, day, content from calendarMemo where year = #{year} and month = #{month}
+	</select>
+	
+	<!-- 달력 메모 WriteForm에 띄우기 -->
+	<select id="calendarMemoSelect" resultType="com.pyeon2.vo.CalendarMemoVO" parameterType="com.pyeon2.vo.CalendarMemoVO">
+		select content from calendarMemo where year = #{year} and month = #{month} and day = #{day}
+	</select>
+	
+	<!-- 달력 메모 삭제하기 -->
+	<delete id="calendarMemoDelete" parameterType="com.pyeon2.vo.CalendarMemoVO">
+		delete from calendarMemo where year = #{year} and month = #{month} and day = #{day}
+	</delete>
+	
+	<!-- 공지사항 컬럼 수 -->
+	<select id="getNoticeCount" resultType="String" parameterType="com.pyeon2.vo.NoticeVO">
+		select count(*) from company_notice where title like #{title}
+	</select>
+	
+	<!-- 물품 code1 가져오기 -->
+	<select id="newproductcode1" parameterType="com.pyeon2.vo.CalendarMemoVO" resultType="String">
+		select code1 from company_item where category = #{category} group by code1
+	</select>
+	
+	<!-- 물품 code2 가져오기  -->
+	<select id="newproductcode2" parameterType="com.pyeon2.vo.CalendarMemoVO" resultType="Integer">
+		select max(code2) as code2 from company_item where category = #{category}
+	</select>
+	
+	<!-- 신제품 입력 -->
+	<insert id="newproduct" parameterType="com.pyeon2.vo.ComItemVO">
+		insert into company_item(bno, item_code,item_name,item_image,cost,price,count,category,code1,code2) values(company_item_num.nextVal,#{item_code},#{item_name},
+		'http://cdn2.bgfretail.com/bgfbrand/files/product/79A4191B8B694F5090EAB3CF00A91F7A.jpg',#{cost},#{price},#{count},#{category},#{code1},#{code2} )
+	</insert>
+	
+	<!-- 지점 전체 area 가져오기 -->
+	<select id="newproductarea" resultType="com.pyeon2.vo.ItemVO">
+		select area from P2_ITEM group by area
+	</select>
+	
+	<insert id="newproductareainsert" parameterType="com.pyeon2.vo.ItemVO">
+		insert into p2_item(bno,item_code,item_name,item_image,price,count,hit,category,area) values(p2_item_num.nextVal,#{item_code},(select item_name from company_item where item_code= #{item_code}),
+		(select item_image from company_item where item_code= #{item_code}),(select price from company_item where item_code= #{item_code}),0,0,(select category from company_item where item_code= #{item_code}),
+		#{area})
+	</insert>
+</mapper>
