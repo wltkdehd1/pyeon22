@@ -2,11 +2,14 @@
 select * from company_item;				-- 본사 재고 테이블
 select * from company_notice;	
 select * from calendarMemo;
+select * from company_notice_repl;
 
 drop table calendarMemo;
 drop table company_item;
-drop table company_notice
-drop sequence noticenum
+drop table company_notice;
+drop table company_notice_repl;
+drop sequence noticenum;
+drop sequence noticeRepl_num;
 
 create table calendarMemo(
 	year varchar2(10),
@@ -47,7 +50,23 @@ create sequence company_item_num
    increment by 1
    start with 1
    nocache;
+   
+ create table company_notice_repl(
+	rno number(10),
+	bno number(10),
+	replyText varchar2(1000),
+	replyer varchar2(50),
+	regdate_char varchar2(50),
+	regdate date,
+	updateDate date
+);
 
+
+create sequence noticeRepl_num
+   increment by 1
+   start with 1
+   nocache;
+   
 -- 음료
 insert into company_item(bno, item_code,item_name,item_image,cost,price,count,category ) values(company_item_num.nextVal, 'DRINK101','하늘보리P280ml',
 'http://cdn2.bgfretail.com/bgfbrand/files/product/79A4191B8B694F5090EAB3CF00A91F7A.jpg',500,1000,500,'음료' );

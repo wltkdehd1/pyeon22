@@ -4,7 +4,13 @@ import java.util.Date;
 
 public class NoticeReplVO {
 	private Integer rno, bno;
-	private String replyText, replyer;
+	private String replyText, replyer, regdate_char;
+	public String getRegdate_char() {
+		return regdate_char;
+	}
+	public void setRegdate_char(String regdate_char) {
+		this.regdate_char = regdate_char;
+	}
 	private Date regDate, updateDate;
 	public Integer getRno() {
 		return rno;

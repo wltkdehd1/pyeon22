@@ -390,7 +390,7 @@ public class PosServiceImpl implements PosService {
 	}
 
 	@Override
-	public void noticeReplDelete(int rno) throws Exception {
-		posDao.noticeReplDelete(rno);
+	public void noticeReplDelete(NoticeReplVO vo) throws Exception {
+		posDao.noticeReplDelete(vo);
 	}
 }

@@ -376,8 +376,8 @@ public class PosDAOImpl implements PosDAO {
 	}
 
 	@Override
-		public void noticeReplDelete(int rno) throws Exception {
-			session.delete(namespace + ".noticeReplDelete", rno);
+		public void noticeReplDelete(NoticeReplVO vo) throws Exception {
+			session.delete(namespace + ".noticeReplDelete", vo);
 	}
 
 	@Override

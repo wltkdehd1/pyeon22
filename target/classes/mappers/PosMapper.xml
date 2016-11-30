@@ -516,15 +516,15 @@
 	
 	<!-- 댓글 리스트 -->
 	<select id="noticeReplList" resultType="com.pyeon2.vo.NoticeReplVO" parameterType="Integer">
-		select rno, bno, replyText, replyer, regdate, updatedate from company_notice_repl
+		select rno, bno, replyText, replyer, regdate_char, regdate, updatedate from company_notice_repl
 		where bno = #{bno}
-		order by rno desc
+		order by rno asc
 	</select>
 	
 	<!-- 댓글 쓰기 -->
 	<insert id="noticeReplWrite" parameterType="com.pyeon2.vo.NoticeReplVO">
-		insert into company_notice_repl (rno, bno, replyText, replyer, regdate, updatedate) 
-		values(noticeRepl_num.nextVal, #{bno}, #{replyText}, #{replyer}, sysdate, null)
+		insert into company_notice_repl (rno, bno, replyText, replyer, regdate_char, regdate, updatedate) 
+		values(noticeRepl_num.nextVal, #{bno}, #{replyText}, #{replyer}, (select to_char(sysdate, 'YYYY-MM-dd HH24:mi') from dual), sysdate, null)
 	</insert>
 	
 	<!-- 댓글 수정 -->
@@ -534,7 +534,7 @@
 	</update>
 	
 	<!-- 댓글 삭제 -->
-	<delete id="noticeReplDelete" parameterType="Integer">
+	<delete id="noticeReplDelete" parameterType="com.pyeon2.vo.NoticeReplVO">
 		delete from company_notice_repl where rno = #{rno}
 	</delete>
 </mapper>

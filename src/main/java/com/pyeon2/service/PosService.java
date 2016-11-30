@@ -233,6 +233,6 @@ public interface PosService {
 	public void noticeReplUpdate(NoticeReplVO vo) throws Exception;
 	
 	//댓글 삭제
-	public void noticeReplDelete(int rno) throws Exception;
+	public void noticeReplDelete(NoticeReplVO vo) throws Exception;
 	
 }
